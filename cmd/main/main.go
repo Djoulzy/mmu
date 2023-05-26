@@ -25,7 +25,7 @@ func Init() {
 	// // myMMU.SwitchFullTo("IO")
 	// myMMU.SwitchFullTo("ROM")
 
-	myMMU.DumpMap()
+	// myMMU.DumpMap()
 }
 
 func main() {

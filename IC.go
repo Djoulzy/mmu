@@ -1,7 +1,7 @@
 package mmu
 
 import (
-	"io/ioutil"
+	"os"
 )
 
 type IC struct {
@@ -26,7 +26,7 @@ func (ic *IC) GetName() string {
 }
 
 func (ic *IC) LoadData(file string, memStart uint16) error {
-	content, err := ioutil.ReadFile(file)
+	content, err := os.ReadFile(file)
 	if err != nil {
 		return err
 	}
