@@ -5,4 +5,4 @@ clean:
 	go clean -i -cache -modcache
 
 main:
-	go build -o verif cmd/main/*
+	go build -o verif cmd/main/main.go

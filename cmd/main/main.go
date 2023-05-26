@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/Djoulzy/chip"
 	"github.com/Djoulzy/mmu"
 )
 
@@ -9,10 +8,9 @@ var (
 	nbPage   uint = 256
 	pageSize uint = mmu.PAGE_SIZE
 
-	RAM *chip.RAM = chip.NewRAM("RAM", pageSize*nbPage, false)
-	AUX *chip.RAM = chip.NewRAM("AUX", pageSize*nbPage, false)
-	ROM *chip.ROM = chip.NewROM("ROM", 0x2FFF)
-	IO  *chip.ROM = chip.NewROM("IO", 0x0FFF)
+	RAM *mmu.RAM = mmu.NewRAM("RAM", pageSize*nbPage, false)
+	AUX *mmu.RAM = mmu.NewRAM("AUX", pageSize*nbPage, false)
+	ROM *mmu.ROM = mmu.NewROM("ROM_D", 4096, "./cmd/main/assets/D.bin")
 
 	myMMU *mmu.MMU = mmu.Init(pageSize, nbPage)
 )
