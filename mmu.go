@@ -3,11 +3,15 @@ package mmu
 import (
 	"fmt"
 	"os"
+
+	"github.com/Djoulzy/Tools/clog"
+	"github.com/Djoulzy/emutools/charset"
 )
 
 const PAGE_SIZE = 256
 
 type ChipAccess interface {
+	SetMMU(*MMU)
 	GetName() string
 	Read(uint16) byte
 	Write(uint16, byte)
@@ -65,6 +69,8 @@ func (m *MMU) Attach(chip ChipAccess, startPage uint, nbPages uint) {
 			m.writter[i] = m.chips[chip.GetName()]
 		}
 	}
+
+	chip.SetMMU(m)
 }
 
 func (m *MMU) SwitchZoneTo(name string, startPage uint, nbPages uint) {
@@ -89,6 +95,22 @@ func (m *MMU) SwitchFullTo(name string) {
 	}
 }
 
+func (m *MMU) Enable(name string) {
+
+}
+
+func (m *MMU) Disable(name string) {
+
+}
+
+func (m *MMU) ReadWrite(name string) {
+
+}
+
+func (m *MMU) ReadOnly(name string) {
+
+}
+
 func (m *MMU) Read(addr uint16) byte {
 	chipInfo := m.reader[addr>>8]
 	return chipInfo.access.Read(addr - chipInfo.baseAddr)
@@ -103,5 +125,36 @@ func (m *MMU) Write(addr uint16, data byte) {
 func (m *MMU) DumpMap() {
 	for page, chip := range m.reader {
 		fmt.Printf("%02X - %s\n", page, chip.access.GetName())
+	}
+}
+
+func (m *MMU) Dump(startAddr uint16) {
+	var val byte
+	var line string
+	var ascii string
+
+	cpt := startAddr
+	for j := 0; j < 16; j++ {
+		fmt.Printf("%04X : ", cpt)
+		line = ""
+		ascii = ""
+		for i := 0; i < 16; i++ {
+			val = m.Read(cpt)
+			if val != 0x00 && val != 0xFF {
+				line = line + clog.CSprintf("white", "black", "%02X", val) + " "
+			} else {
+				line = fmt.Sprintf("%s%02X ", line, val)
+			}
+			if _, ok := charset.PETSCII[val]; ok {
+				ascii += fmt.Sprintf("%s", string(charset.PETSCII[val]))
+			} else {
+				ascii += "."
+			}
+			if i == 7 {
+				line = fmt.Sprintf("%s  ", line)
+			}
+			cpt++
+		}
+		fmt.Printf("%s - %s\n", line, ascii)
 	}
 }

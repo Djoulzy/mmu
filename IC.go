@@ -7,6 +7,7 @@ import (
 type IC struct {
 	Name string
 	Buff []byte
+	Mmu  *MMU
 	ChipAccess
 }
 
@@ -36,4 +37,8 @@ func (ic *IC) LoadData(file string, memStart uint16) error {
 		ic.Buff[memStart+uint16(i)] = val
 	}
 	return nil
+}
+
+func (ic *IC) SetMMU(ref *MMU) {
+	ic.Mmu = ref
 }
