@@ -6,6 +6,7 @@ import (
 
 type IC struct {
 	Name string
+	Size uint
 	Buff []byte
 	Mmu  *MMU
 	ChipAccess
@@ -15,6 +16,7 @@ type IC struct {
 func NewIC(name string, size uint) *IC {
 	var tmp IC
 
+	tmp.Size = size
 	tmp.Name = name
 	tmp.Buff = make([]byte, size)
 
@@ -24,6 +26,10 @@ func NewIC(name string, size uint) *IC {
 
 func (ic *IC) GetName() string {
 	return ic.Name
+}
+
+func (ic *IC) GetSize() uint {
+	return ic.Size
 }
 
 func (ic *IC) LoadData(file string, memStart uint16) error {

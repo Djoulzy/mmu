@@ -8,14 +8,19 @@ import (
 	"github.com/Djoulzy/emutools/charset"
 )
 
-const PAGE_SIZE = 256
+const (
+	PAGE_SIZE = 256
+	READONLY  = 1
+	WRITEONLY = 2
+	READWRITE = 3
+)
 
 type ChipAccess interface {
 	SetMMU(*MMU)
+	GetSize() uint
 	GetName() string
 	Read(uint16) byte
 	Write(uint16, byte)
-	ReadOnly() bool
 }
 
 type chipInfos struct {
@@ -48,10 +53,11 @@ func (m *MMU) GetSize() uint {
 	return m.AddressRange
 }
 
-func (m *MMU) Attach(chip ChipAccess, startPage uint, nbPages uint) {
+func (m *MMU) Attach(chip ChipAccess, startPage uint, mode int) {
 	var i uint
 
-	if nbPages*PAGE_SIZE+startPage > m.AddressRange {
+	nbPages := chip.GetSize() / PAGE_SIZE
+	if chip.GetSize()+startPage > m.AddressRange {
 		fmt.Printf("%s: Size Error\n", chip.GetName())
 		os.Exit(0)
 	}
@@ -64,8 +70,11 @@ func (m *MMU) Attach(chip ChipAccess, startPage uint, nbPages uint) {
 
 	fmt.Printf("Attach %s page $%02X to $%02X\n", chip.GetName(), startPage, startPage+nbPages-1)
 	for i = startPage; i < (startPage + nbPages); i++ {
-		m.reader[i] = m.chips[chip.GetName()]
-		if !chip.ReadOnly() {
+
+		if mode&READONLY == READONLY {
+			m.reader[i] = m.chips[chip.GetName()]
+		}
+		if mode&WRITEONLY == WRITEONLY {
 			m.writter[i] = m.chips[chip.GetName()]
 		}
 	}
@@ -73,42 +82,17 @@ func (m *MMU) Attach(chip ChipAccess, startPage uint, nbPages uint) {
 	chip.SetMMU(m)
 }
 
-func (m *MMU) SwitchZoneTo(name string, startPage uint, nbPages uint) {
-	var i uint
-	chip := m.chips[name]
-	for i = startPage; i < (startPage + nbPages); i++ {
-		m.reader[i] = chip
-		if !chip.access.ReadOnly() {
-			m.writter[i] = chip
-		}
-	}
-}
-
-func (m *MMU) SwitchFullTo(name string) {
+func (m *MMU) Mount(name string, mode int) {
 	var i uint
 	chip := m.chips[name]
 	for i = chip.startPage; i < (chip.startPage + chip.nbPages); i++ {
-		m.reader[i] = chip
-		if !chip.access.ReadOnly() {
+		if mode&READONLY == READONLY {
+			m.reader[i] = chip
+		}
+		if mode&WRITEONLY == WRITEONLY {
 			m.writter[i] = chip
 		}
 	}
-}
-
-func (m *MMU) Enable(name string) {
-
-}
-
-func (m *MMU) Disable(name string) {
-
-}
-
-func (m *MMU) ReadWrite(name string) {
-
-}
-
-func (m *MMU) ReadOnly(name string) {
-
 }
 
 func (m *MMU) Read(addr uint16) byte {
@@ -123,8 +107,23 @@ func (m *MMU) Write(addr uint16, data byte) {
 }
 
 func (m *MMU) DumpMap() {
-	for page, chip := range m.reader {
-		fmt.Printf("%02X - %s\n", page, chip.access.GetName())
+	var i uint
+	for i = 0; i < m.NbPage; i++ {
+		fmt.Printf("%02X - %8s / %8s\n", i, m.reader[i].access.GetName(), m.writter[i].access.GetName())
+	}
+}
+
+func (m *MMU) CheckMapIntegrity() {
+	var i uint
+	for i = 0; i < m.NbPage; i++ {
+		if m.reader[i].access == nil {
+			fmt.Printf("Page %02X not allocated for reading !\n", i)
+			os.Exit(0)
+		}
+		if m.writter[i].access == nil {
+			fmt.Printf("Page %02X not allocated for writting !\n", i)
+			os.Exit(0)
+		}
 	}
 }
 
@@ -146,7 +145,7 @@ func (m *MMU) Dump(startAddr uint16) {
 				line = fmt.Sprintf("%s%02X ", line, val)
 			}
 			if _, ok := charset.PETSCII[val]; ok {
-				ascii += fmt.Sprintf("%s", string(charset.PETSCII[val]))
+				ascii += string(charset.PETSCII[val])
 			} else {
 				ascii += "."
 			}

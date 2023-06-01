@@ -8,18 +8,18 @@ var (
 	nbPage   uint = 256
 	pageSize uint = mmu.PAGE_SIZE
 
-	RAM *mmu.RAM = mmu.NewRAM("RAM", pageSize*nbPage, false)
-	AUX *mmu.RAM = mmu.NewRAM("AUX", pageSize*nbPage, false)
+	RAM *mmu.RAM = mmu.NewRAM("RAM", pageSize*nbPage)
+	AUX *mmu.RAM = mmu.NewRAM("AUX", pageSize*nbPage)
 	ROM *mmu.ROM = mmu.NewROM("ROM_D", 4096, "./cmd/main/assets/D.bin")
 
 	myMMU *mmu.MMU = mmu.Init(pageSize, nbPage)
 )
 
 func Init() {
-	myMMU.Attach(RAM, 0, 256)
-	myMMU.Attach(AUX, 0, 256)
+	myMMU.Attach(RAM, 0, mmu.READWRITE)
+	myMMU.Attach(AUX, 0, mmu.READWRITE)
 	// myMMU.Attach(IO, 0xC0, 1)
-	myMMU.Attach(ROM, 0xD0, 1)
+	myMMU.Attach(ROM, 0xD0, mmu.READONLY)
 
 	// myMMU.SwitchFullTo("RAM")
 	// // myMMU.SwitchFullTo("IO")

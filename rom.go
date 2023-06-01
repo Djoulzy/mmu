@@ -1,28 +1,19 @@
 package mmu
 
-import (
-	"log"
-)
-
 type ROM struct {
 	IC
-	Under *IC
 }
 
-func NewROM(name string, size int, file string) *ROM {
+func NewROM(name string, size uint, file string) *ROM {
 	var tmp ROM
 
+	tmp.Size = size
 	tmp.Name = name
 	tmp.Buff = make([]byte, size)
-	tmp.Under = nil
 	tmp.LoadData(file, 0)
 
 	// fmt.Printf("Create new ROM %4s with size %d\n", name, size)
 	return &tmp
-}
-
-func (r *ROM) SetUnderChip(chip *IC) {
-	r.Under = chip
 }
 
 func (r *ROM) Read(addr uint16) byte {
@@ -32,10 +23,6 @@ func (r *ROM) Read(addr uint16) byte {
 
 func (r *ROM) Write(addr uint16, data byte) {
 	// fmt.Printf("Writting $%02X to %4s at $%04X\n", data, r.Name, addr)
-	if r.Under == nil {
-		log.Fatal("No RAM under ROM")
-	}
-	r.Under.Write(addr, data)
 }
 
 func (r *ROM) ReadOnly() bool {

@@ -2,15 +2,14 @@ package mmu
 
 type RAM struct {
 	IC
-	isReadOnly bool
 }
 
-func NewRAM(name string, size uint, readOnly bool) *RAM {
+func NewRAM(name string, size uint) *RAM {
 	var tmp RAM
 
+	tmp.Size = size
 	tmp.Name = name
 	tmp.Buff = make([]byte, size)
-	tmp.isReadOnly = readOnly
 
 	// fmt.Printf("Create new RAM %4s with size %d\n", name, size)
 	return &tmp
@@ -25,10 +24,6 @@ func (c *RAM) Read(addr uint16) byte {
 func (c *RAM) Write(addr uint16, data byte) {
 	// fmt.Printf("Writting $%02X to %4s at $%04X\n", data, c.Name, addr)
 	c.Buff[addr] = data
-}
-
-func (c *RAM) ReadOnly() bool {
-	return c.isReadOnly
 }
 
 func (c *RAM) Clear(interval int, startWith byte) {
