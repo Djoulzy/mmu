@@ -20,6 +20,7 @@ type ChipAccess interface {
 	GetSize() uint
 	GetName() string
 	Read(uint16) byte
+	Dump(uint16) byte
 	Write(uint16, byte)
 }
 
@@ -100,6 +101,11 @@ func (m *MMU) Read(addr uint16) byte {
 	return chipInfo.access.Read(addr - chipInfo.baseAddr)
 }
 
+func (m *MMU) DirectRead(addr uint16) byte {
+	chipInfo := m.reader[addr>>8]
+	return chipInfo.access.Dump(addr - chipInfo.baseAddr)
+}
+
 func (m *MMU) Write(addr uint16, data byte) {
 	chipInfo := m.writter[addr>>8]
 	// fmt.Printf("Found %s at %02X\n", chipInfo.access.GetName(), addr>>8)
@@ -138,7 +144,7 @@ func (m *MMU) Dump(startAddr uint16) {
 		line = ""
 		ascii = ""
 		for i := 0; i < 16; i++ {
-			val = m.Read(cpt)
+			val = m.DirectRead(cpt)
 			if val != 0x00 && val != 0xFF {
 				line = line + clog.CSprintf("white", "black", "%02X", val) + " "
 			} else {

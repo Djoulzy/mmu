@@ -48,3 +48,7 @@ func (ic *IC) LoadData(file string, memStart uint16) error {
 func (ic *IC) SetMMU(ref *MMU) {
 	ic.Mmu = ref
 }
+
+func (ic *IC) Dump(addr uint16) byte {
+	return ic.Buff[addr]
+}
