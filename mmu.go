@@ -114,8 +114,12 @@ func (m *MMU) Write(addr uint16, data byte) {
 
 func (m *MMU) DumpMap() {
 	var i uint
-	for i = 0; i < m.NbPage; i++ {
-		fmt.Printf("%02X - %8s / %8s\n", i, m.reader[i].access.GetName(), m.writter[i].access.GetName())
+	step := m.NbPage / 4
+	for i = 0; i < step; i++ {
+		fmt.Printf("%02X - %8s / %8s\t", i, m.reader[i].access.GetName(), m.writter[i].access.GetName())
+		fmt.Printf("%02X - %8s / %8s\t", i+step, m.reader[i+step].access.GetName(), m.writter[i+step].access.GetName())
+		fmt.Printf("%02X - %8s / %8s\t", i+(step*2), m.reader[i+(step*2)].access.GetName(), m.writter[i+(step*2)].access.GetName())
+		fmt.Printf("%02X - %8s / %8s\n", i+(step*3), m.reader[i+(step*3)].access.GetName(), m.writter[i+(step*3)].access.GetName())
 	}
 }
 
