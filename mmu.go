@@ -34,18 +34,18 @@ type chipInfos struct {
 type MMU struct {
 	NbPage       uint
 	AddressRange uint
-	chips        map[string]chipInfos
-	reader       []chipInfos
-	writter      []chipInfos
+	chips        map[string]*chipInfos
+	reader       []*chipInfos
+	writter      []*chipInfos
 }
 
 func Init(pageSize uint, nbPages uint) *MMU {
 	tmp := MMU{
 		NbPage:       nbPages,
 		AddressRange: pageSize * nbPages,
-		reader:       make([]chipInfos, nbPages),
-		writter:      make([]chipInfos, nbPages),
-		chips:        make(map[string]chipInfos),
+		reader:       make([]*chipInfos, nbPages),
+		writter:      make([]*chipInfos, nbPages),
+		chips:        make(map[string]*chipInfos),
 	}
 	return &tmp
 }
@@ -54,15 +54,15 @@ func (m *MMU) GetSize() uint {
 	return m.AddressRange
 }
 
-func (m *MMU) Attach(chip ChipAccess, startPage uint, mode int) {
-	var i uint
+func (m *MMU) Attach(chip ChipAccess, startPage uint) {
+	// var i uint
 
 	nbPages := chip.GetSize() / PAGE_SIZE
 	if chip.GetSize()+startPage > m.AddressRange {
 		fmt.Printf("%s: Size Error\n", chip.GetName())
 		os.Exit(0)
 	}
-	m.chips[chip.GetName()] = chipInfos{
+	m.chips[chip.GetName()] = &chipInfos{
 		startPage: startPage,
 		nbPages:   nbPages,
 		baseAddr:  uint16(startPage) << 8,
@@ -70,29 +70,33 @@ func (m *MMU) Attach(chip ChipAccess, startPage uint, mode int) {
 	}
 
 	fmt.Printf("Attach %s page $%02X to $%02X\n", chip.GetName(), startPage, startPage+nbPages-1)
-	for i = startPage; i < (startPage + nbPages); i++ {
-
-		if mode&READONLY == READONLY {
-			m.reader[i] = m.chips[chip.GetName()]
-		}
-		if mode&WRITEONLY == WRITEONLY {
-			m.writter[i] = m.chips[chip.GetName()]
-		}
-	}
+	// m.Mount(chip.GetName(), mode)
 
 	chip.SetMMU(m)
 }
 
-func (m *MMU) Mount(name string, mode int) {
+func (m *MMU) Mount(reader string, writer string) {
 	var i uint
-	chip := m.chips[name]
-	for i = chip.startPage; i < (chip.startPage + chip.nbPages); i++ {
-		if mode&READONLY == READONLY {
-			m.reader[i] = chip
-		}
-		if mode&WRITEONLY == WRITEONLY {
-			m.writter[i] = chip
-		}
+	var writerChip *chipInfos = nil
+	// chip := m.chips[name]
+	// for i = chip.startPage; i < (chip.startPage + chip.nbPages); i++ {
+	// 	m.reader[i] = nil
+	// 	m.writter[i] = nil
+	// 	if mode&READONLY == READONLY {
+	// 		m.reader[i] = &chip
+	// 	}
+	// 	if mode&WRITEONLY == WRITEONLY {
+	// 		m.writter[i] = &chip
+	// 	}
+	// }
+
+	readerChip := m.chips[reader]
+	if writer != "" {
+		writerChip = m.chips[writer]
+	}
+	for i = readerChip.startPage; i < (readerChip.startPage + readerChip.nbPages); i++ {
+		m.reader[i] = readerChip
+		m.writter[i] = writerChip
 	}
 }
 
@@ -109,17 +113,32 @@ func (m *MMU) DirectRead(addr uint16) byte {
 func (m *MMU) Write(addr uint16, data byte) {
 	chipInfo := m.writter[addr>>8]
 	// fmt.Printf("Found %s at %02X\n", chipInfo.access.GetName(), addr>>8)
-	chipInfo.access.Write(addr-chipInfo.baseAddr, data)
+	if chipInfo != nil {
+		chipInfo.access.Write(addr-chipInfo.baseAddr, data)
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Dumpers
+//////////////////////////////////////////////////////////////////////////
+
+func (m *MMU) getWriter(i uint) string {
+	if m.writter[i] != nil {
+		return m.writter[i].access.GetName()
+	} else {
+		return " - "
+	}
 }
 
 func (m *MMU) DumpMap() {
 	var i uint
+
 	step := m.NbPage / 4
 	for i = 0; i < step; i++ {
-		fmt.Printf("%02X - %8s / %8s\t", i, m.reader[i].access.GetName(), m.writter[i].access.GetName())
-		fmt.Printf("%02X - %8s / %8s\t", i+step, m.reader[i+step].access.GetName(), m.writter[i+step].access.GetName())
-		fmt.Printf("%02X - %8s / %8s\t", i+(step*2), m.reader[i+(step*2)].access.GetName(), m.writter[i+(step*2)].access.GetName())
-		fmt.Printf("%02X - %8s / %8s\n", i+(step*3), m.reader[i+(step*3)].access.GetName(), m.writter[i+(step*3)].access.GetName())
+		fmt.Printf("%02X - %8s / %8s\t", i, m.reader[i].access.GetName(), m.getWriter(i))
+		fmt.Printf("%02X - %8s / %8s\t", i+step, m.reader[i+step].access.GetName(), m.getWriter(i+step))
+		fmt.Printf("%02X - %8s / %8s\t", i+(step*2), m.reader[i+(step*2)].access.GetName(), m.getWriter(i+(step*2)))
+		fmt.Printf("%02X - %8s / %8s\n", i+(step*3), m.reader[i+(step*3)].access.GetName(), m.getWriter(i+(step*3)))
 	}
 }
 
@@ -130,10 +149,10 @@ func (m *MMU) CheckMapIntegrity() {
 			fmt.Printf("Page %02X not allocated for reading !\n", i)
 			os.Exit(0)
 		}
-		if m.writter[i].access == nil {
-			fmt.Printf("Page %02X not allocated for writting !\n", i)
-			os.Exit(0)
-		}
+		// if m.writter[i].access == nil {
+		// 	fmt.Printf("Page %02X not allocated for writting !\n", i)
+		// 	os.Exit(0)
+		// }
 	}
 }
 
