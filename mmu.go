@@ -78,17 +78,6 @@ func (m *MMU) Attach(chip ChipAccess, startPage uint) {
 func (m *MMU) Mount(reader string, writer string) {
 	var i uint
 	var writerChip *chipInfos = nil
-	// chip := m.chips[name]
-	// for i = chip.startPage; i < (chip.startPage + chip.nbPages); i++ {
-	// 	m.reader[i] = nil
-	// 	m.writter[i] = nil
-	// 	if mode&READONLY == READONLY {
-	// 		m.reader[i] = &chip
-	// 	}
-	// 	if mode&WRITEONLY == WRITEONLY {
-	// 		m.writter[i] = &chip
-	// 	}
-	// }
 
 	readerChip := m.chips[reader]
 	if writer != "" {
@@ -97,6 +86,15 @@ func (m *MMU) Mount(reader string, writer string) {
 	for i = readerChip.startPage; i < (readerChip.startPage + readerChip.nbPages); i++ {
 		m.reader[i] = readerChip
 		m.writter[i] = writerChip
+	}
+}
+
+func (m *MMU) SwapRom(from string, to string) {
+	var i uint
+	fromChip := m.chips[from]
+	toChip := m.chips[to]
+	for i = fromChip.startPage; i < (fromChip.startPage + fromChip.nbPages); i++ {
+		m.reader[i] = toChip
 	}
 }
 
