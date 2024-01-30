@@ -19,6 +19,7 @@ type ChipAccess interface {
 	SetMMU(*MMU)
 	GetSize() uint
 	GetName() string
+	GetBuff() []byte
 	Read(uint16) byte
 	Dump(uint16) byte
 	Write(uint16, byte)
@@ -73,6 +74,10 @@ func (m *MMU) Attach(chip ChipAccess, startPage uint) {
 	// m.Mount(chip.GetName(), mode)
 
 	chip.SetMMU(m)
+}
+
+func (m *MMU) GetChipMem(name string) []byte {
+	return m.chips[name].access.GetBuff()
 }
 
 func (m *MMU) Mount(reader string, writer string) {

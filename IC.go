@@ -32,6 +32,10 @@ func (ic *IC) GetSize() uint {
 	return ic.Size
 }
 
+func (ic *IC) GetBuff() []byte {
+	return ic.Buff
+}
+
 func (ic *IC) LoadData(file string, memStart uint16) error {
 	content, err := os.ReadFile(file)
 	if err != nil {
