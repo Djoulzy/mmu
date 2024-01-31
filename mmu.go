@@ -94,6 +94,22 @@ func (m *MMU) Mount(reader string, writer string) {
 	}
 }
 
+func (m *MMU) MountReader(reader string) {
+	var i uint
+	readerChip := m.chips[reader]
+	for i = readerChip.startPage; i < (readerChip.startPage + readerChip.nbPages); i++ {
+		m.reader[i] = readerChip
+	}
+}
+
+func (m *MMU) MountWriter(writer string) {
+	var i uint
+	writerChip := m.chips[writer]
+	for i = writerChip.startPage; i < (writerChip.startPage + writerChip.nbPages); i++ {
+		m.writter[i] = writerChip
+	}
+}
+
 func (m *MMU) SwapRom(from string, to string) {
 	var i uint
 	fromChip := m.chips[from]
