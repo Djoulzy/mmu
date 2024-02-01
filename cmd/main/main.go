@@ -111,8 +111,8 @@ func Init() {
 	// myMMU.Mount("ROM_EF", "")
 
 	// // $C083
-	myMMU.Mount("MN_BK2", "MN_BK2")
-	myMMU.Mount("MN___4", "MN___4")
+	// myMMU.Mount("MN_BK2", "MN_BK2")
+	// myMMU.Mount("MN___4", "MN___4")
 
 	// // $C088
 	// myMMU.Mount("MN_BK1", "")
@@ -151,12 +151,11 @@ func Init() {
 	// myMMU.MountReader("MN___3")
 
 	// // $C003
-	// myMMU.MountReader("AX_ZPS")
-	// myMMU.MountReader("AX___1")
-	// myMMU.MountReader("AX_TXT")
-	// myMMU.MountReader("AX___2")
-	// myMMU.MountReader("AX_HGR")
-	// myMMU.MountReader("AX___3")
+	myMMU.MountReader("AX___1")
+	myMMU.MountReader("AX_TXT")
+	myMMU.MountReader("AX___2")
+	myMMU.MountReader("AX_HGR")
+	myMMU.MountReader("AX___3")
 
 	// // $C004
 	// myMMU.MountWriter("MN_ZPS")
@@ -174,11 +173,11 @@ func Init() {
 	// myMMU.MountWriter("AX_HGR")
 	// myMMU.MountWriter("AX___3")
 
-	myMMU.SwapChip("SLOT_3", "ROM_C")
+	// myMMU.SwapChip("SLOT_3", "ROM_C")
 
-	myMMU.SwapChip("MN_BK1", "AX_BK1")
-	myMMU.SwapChip("MN_BK2", "AX_BK2")
-	myMMU.SwapChip("MN___4", "AX___4")
+	// myMMU.SwapChip("MN_BK1", "AX_BK1")
+	// myMMU.SwapChip("MN_BK2", "AX_BK2")
+	// myMMU.SwapChip("MN___4", "AX___4")
 
 	myMMU.DumpMap()
 }
