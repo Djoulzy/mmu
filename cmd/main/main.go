@@ -98,81 +98,87 @@ func Init() {
 
 	myMMU.CheckMapIntegrity()
 
-	// $C080
-	myMMU.Mount("MN_BK2", "")
-	myMMU.Mount("MN___4", "")
+	// // $C080
+	// myMMU.Mount("MN_BK2", "")
+	// myMMU.Mount("MN___4", "")
 
-	// // $C081
-	myMMU.Mount("ROM_D", "MN_BK2")
-	myMMU.Mount("ROM_EF", "MN___4")
+	// // // $C081
+	// myMMU.Mount("ROM_D", "MN_BK2")
+	// myMMU.Mount("ROM_EF", "MN___4")
 
-	// $C082
-	myMMU.Mount("ROM_D", "")
-	myMMU.Mount("ROM_EF", "")
+	// // $C082
+	// myMMU.Mount("ROM_D", "")
+	// myMMU.Mount("ROM_EF", "")
 
-	// $C083
+	// // $C083
 	myMMU.Mount("MN_BK2", "MN_BK2")
 	myMMU.Mount("MN___4", "MN___4")
 
-	// $C088
-	myMMU.Mount("MN_BK1", "")
-	myMMU.Mount("MN___4", "")
+	// // $C088
+	// myMMU.Mount("MN_BK1", "")
+	// myMMU.Mount("MN___4", "")
 
-	// $C089
-	myMMU.Mount("ROM_D", "MN_BK1")
-	myMMU.Mount("ROM_EF", "MN___4")
+	// // $C089
+	// myMMU.Mount("ROM_D", "MN_BK1")
+	// myMMU.Mount("ROM_EF", "MN___4")
 
-	// $C08A
-	myMMU.Mount("ROM_D", "")
-	myMMU.Mount("ROM_EF", "")
+	// // $C08A
+	// myMMU.Mount("ROM_D", "")
+	// myMMU.Mount("ROM_EF", "")
 
-	// $C08B
-	myMMU.Mount("MN_BK1", "MN_BK1")
-	myMMU.Mount("MN___4", "MN___4")
+	// // $C08B
+	// myMMU.Mount("MN_BK1", "MN_BK1")
+	// myMMU.Mount("MN___4", "MN___4")
 
-	// $C006
-	for i := 1; i < 8; i++ {
-		myMMU.Mount("SLOT_"+strconv.Itoa(i), "")
-	}
+	// // $C006
+	// for i := 1; i < 8; i++ {
+	// 	myMMU.Mount("SLOT_"+strconv.Itoa(i), "")
+	// }
 
-	// $C007
-	myMMU.Mount("ROM_C", "")
-	myMMU.Mount("IO", "IO")
+	// // $C007
+	// myMMU.Mount("ROM_C", "")
+	// myMMU.Mount("IO", "IO")
 
-	// $C00B
-	myMMU.Mount("SLOT_3", "")
+	// // $C00B
+	// myMMU.Mount("SLOT_3", "")
 
-	// $C002
-	myMMU.MountReader("MN_ZPS")
-	myMMU.MountReader("MN___1")
-	myMMU.MountReader("MN_TXT")
-	myMMU.MountReader("MN___2")
-	myMMU.MountReader("MN_HGR")
-	myMMU.MountReader("MN___3")
+	// // $C002
+	// myMMU.MountReader("MN_ZPS")
+	// myMMU.MountReader("MN___1")
+	// myMMU.MountReader("MN_TXT")
+	// myMMU.MountReader("MN___2")
+	// myMMU.MountReader("MN_HGR")
+	// myMMU.MountReader("MN___3")
 
-	// $C003
-	myMMU.MountReader("AX_ZPS")
-	myMMU.MountReader("AX___1")
-	myMMU.MountReader("AX_TXT")
-	myMMU.MountReader("AX___2")
-	myMMU.MountReader("AX_HGR")
-	myMMU.MountReader("AX___3")
+	// // $C003
+	// myMMU.MountReader("AX_ZPS")
+	// myMMU.MountReader("AX___1")
+	// myMMU.MountReader("AX_TXT")
+	// myMMU.MountReader("AX___2")
+	// myMMU.MountReader("AX_HGR")
+	// myMMU.MountReader("AX___3")
 
-	// $C004
-	myMMU.MountWriter("MN_ZPS")
-	myMMU.MountWriter("MN___1")
-	myMMU.MountWriter("MN_TXT")
-	myMMU.MountWriter("MN___2")
-	myMMU.MountWriter("MN_HGR")
-	myMMU.MountWriter("MN___3")
+	// // $C004
+	// myMMU.MountWriter("MN_ZPS")
+	// myMMU.MountWriter("MN___1")
+	// myMMU.MountWriter("MN_TXT")
+	// myMMU.MountWriter("MN___2")
+	// myMMU.MountWriter("MN_HGR")
+	// myMMU.MountWriter("MN___3")
 
-	// $C005
-	myMMU.MountWriter("AX_ZPS")
-	myMMU.MountWriter("AX___1")
-	myMMU.MountWriter("AX_TXT")
-	myMMU.MountWriter("AX___2")
-	myMMU.MountWriter("AX_HGR")
-	myMMU.MountWriter("AX___3")
+	// // $C005
+	// myMMU.MountWriter("AX_ZPS")
+	// myMMU.MountWriter("AX___1")
+	// myMMU.MountWriter("AX_TXT")
+	// myMMU.MountWriter("AX___2")
+	// myMMU.MountWriter("AX_HGR")
+	// myMMU.MountWriter("AX___3")
+
+	myMMU.SwapChip("SLOT_3", "ROM_C")
+
+	myMMU.SwapChip("MN_BK1", "AX_BK1")
+	myMMU.SwapChip("MN_BK2", "AX_BK2")
+	myMMU.SwapChip("MN___4", "AX___4")
 
 	myMMU.DumpMap()
 }

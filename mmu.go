@@ -110,12 +110,17 @@ func (m *MMU) MountWriter(writer string) {
 	}
 }
 
-func (m *MMU) SwapRom(from string, to string) {
+func (m *MMU) SwapChip(from string, to string) {
 	var i uint
 	fromChip := m.chips[from]
 	toChip := m.chips[to]
 	for i = fromChip.startPage; i < (fromChip.startPage + fromChip.nbPages); i++ {
-		m.reader[i] = toChip
+		if m.reader[i] == fromChip {
+			m.reader[i] = toChip
+		}
+		if m.writter[i] == fromChip {
+			m.writter[i] = toChip
+		}
 	}
 }
 
